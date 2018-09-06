@@ -1,0 +1,11 @@
+{
+  "name": "mywaypoints",
+  "version": "1.0.0",
+  "description": "Project 1 of CSE 589",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alan Romano (alanroma)",
+  "license": "ISC"
+}
