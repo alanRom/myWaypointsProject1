@@ -7,8 +7,10 @@ import Results from './Results';
 import '../styles/app.css'
 export default class MainApp extends Component {
 
-
-
+  componentDidMount()
+  {
+    document.getElementById('app').style = '';
+  }
   render() {
       
       return (

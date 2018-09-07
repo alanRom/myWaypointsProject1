@@ -100,7 +100,8 @@ class Home extends Component {
       let toLocation = locations.length > 1 ? locations[1] : null;
 
       return (
-          <div style={{padding: '10px'}}>
+          <div class="row" style={{padding: '10px'}}>
+          <div class="col-xs-12 col-md-8">
             <div className="row">
               <div className="col">
                 <b>From:&nbsp;</b>
@@ -114,21 +115,20 @@ class Home extends Component {
                 <br/>
                 { toLocation != null ? `(${toLocation.lat},${toLocation.lng})` : ''}
               </div>
-              <div className="col">
+              <div className="col-3">
                 <button className="btn btn-primary" onClick={this.getDirections}>Search</button>
                 &nbsp;
                 <button className="btn btn-default" onClick={this.clearDirections}>Clear</button>
               </div>
             </div>
             <br/>
-            <Map google={google} zoom={14} 
-                onClick={this.mapClicked}
-                onReady={this.onMapLoad}
-                initialCenter={initialCenter}
-                center={center}
-                style={{
-                      width: '75%',  
-                    }}
+            <div style={{height: '70vh'}}>
+              <Map google={google} zoom={10} 
+              onClick={this.mapClicked}
+              onReady={this.onMapLoad}
+              initialCenter={initialCenter}
+              center={center}
+            
               >
                 {
                   routeOnMap ? '' : locations.map(loc => <Marker name='' position={{lat: loc.lat, lng: loc.lng}} onClick={this.markerClicked}/>)
@@ -137,7 +137,14 @@ class Home extends Component {
                 <InfoWindow onClose={this.onInfoWindowClose}>
                     
                 </InfoWindow>
-            </Map>
+              </Map>
+            </div>
+          
+          </div>
+          <div class="col-xs-12 col-md-4">
+            <b>Results:</b>
+          </div>
+           
           </div>
         );
     }
