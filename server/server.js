@@ -4,7 +4,7 @@ import { StaticRouter as Router, matchPath } from 'react-router';
 import express from 'express'
 import hogan from 'hogan-express'
 // Routes
-import App from './app'
+import App from '../react/app'
 // Express
 const app = express()
 app.engine('html', hogan)

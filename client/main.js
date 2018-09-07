@@ -1,7 +1,7 @@
 // Adapted from: https://www.sitepoint.com/building-a-react-universal-blog-app-a-step-by-step-guide/
 
 import { render } from 'react-dom';
-import App from './app';
+import App from '../react/app';
 import { BrowserRouter as Router } from 'react-router-dom';
 import React, { Component } from 'react'
 

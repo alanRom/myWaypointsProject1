@@ -3,11 +3,11 @@ var webpack = require('webpack')
 
 module.exports = {
   devtool: 'eval',
-  entry: './main.js',
+  entry: './client/main.js',
   output: {
     path: __dirname + '/public/dist',
     filename: 'bundle.js',
-    publicPath: '/dist/'
+    publicPath: '/dist/',
   },
   module: {
     rules: [
@@ -15,10 +15,14 @@ module.exports = {
           test: /\.jsx*$/,
           exclude: [/node_modules/, /.+\.config.js/],
           use: 'babel-loader',
-        }
-      ]
+        },
+        {
+          test:/\.css$/,
+          use:['style-loader','css-loader'],
+        },
+      ],
   },
   plugins: [
     
- ]
+ ],
 };
