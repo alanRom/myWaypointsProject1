@@ -5,8 +5,12 @@ import About from './About';
 import NoMatch from './NotFound';
 import Results from './Results';
 import '../styles/app.css'
-export default class AppRoutes extends Component {
+export default class MainApp extends Component {
+
+
+
   render() {
+      
       return (
         <div>
           <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
