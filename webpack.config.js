@@ -3,7 +3,7 @@ var webpack = require('webpack')
 
 module.exports = {
   devtool: 'eval',
-  entry: './client/main.js',
+  entry: ['babel-polyfill','./client/main.js'],
   output: {
     path: __dirname + '/public/dist',
     filename: 'bundle.js',
