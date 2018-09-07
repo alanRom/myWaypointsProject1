@@ -1,2 +1,3 @@
-export const SET_MESSAGE = 'SET_MESSAGE';
-export const CLICK_MAP = 'CLICK_MAP';
+export const ADD_LOCATION = 'ADD_LOCATION';
+export const REMOVE_LOCATION = 'REMOVE_LOCATION';
+export const CHANGE_CENTER = 'CHANGE_CENTER';

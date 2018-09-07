@@ -4,7 +4,7 @@ export default class About extends Component {
       return (
           <div>
             <h2>About</h2>
-            <div>Some about page content</div>
+            <p>This website is for CSE 589.</p>
           </div>
         );
     }
