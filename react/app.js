@@ -4,7 +4,6 @@ import Home from './Home';
 import About from './About';
 import NoMatch from './NotFound';
 import Results from './Results';
-import '../styles/app.css'
 export default class MainApp extends Component {
 
   componentDidMount()
