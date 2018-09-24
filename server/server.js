@@ -5,6 +5,12 @@ import express from 'express'
 import hogan from 'hogan-express'
 import { Provider  } from 'react-redux'
 import store from '../react/store';
+import bodyParser from 'body-parser';
+import decodePolyline from 'decode-google-map-polyline';
+import axios from 'axios';
+
+const CITY_PRECISION = 5;
+
 // Routes
 import App from '../react/app'
 
@@ -22,6 +28,13 @@ app.engine('html', hogan)
 app.set('views', __dirname + '/views')
 app.use('/', express.static(__dirname + '/public/'))
 app.set('port', (process.env.PORT || 3000))
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('*',(req, res) => {
     
@@ -41,11 +54,73 @@ app.get('*',(req, res) => {
 
 app.post('/directions', (req,res) => {
     var requestDetails = req.body.request;
-
-
-    googleMapsClient.directions(requestDetails)
+    requestDetails.mode = requestDetails.travelMode.toLowerCase();
+    delete requestDetails.travelMode
+    googleMapsClient.directions(requestDetails).asPromise()
     .then(results => {
 
+
+        if(results.json.routes){
+            results.json.routes.forEach(element => {
+                var points = decodePolyline(element.overview_polyline.points);
+                var selectedPoints = [];
+                for(let i = 0; i < points.length; i+=CITY_PRECISION){
+                    selectedPoints.push(points[i]);
+                }
+                points = null;
+                let promises = selectedPoints.map(elem => {
+                    return googleMapsClient.reverseGeocode({latlng: elem}).asPromise()
+                });
+
+                Promise.all(promises).then(resultsArray => {
+                    var uniqueCities = [];
+                    var cityInfo = [];
+                    resultsArray.forEach(place => {
+                        var address = place.json.results[0].formatted_address.split(/,/g);
+                        var city = address[1];
+
+                        if(uniqueCities.indexOf(city) == -1){
+                            var stateZipSplit = address[2].split(' ')
+                            var addressToLookup = {city: city, state: stateZipSplit[1], zip: stateZipSplit[2]}
+                            uniqueCities.push(city);
+                            cityInfo.push(addressToLookup);
+                        }
+                        
+                    })
+
+                    let promiseArray = cityInfo.map(city => {
+                        return new Promise((resolve,reject) => {
+                            axios.get(`https://api.openweathermap.org/data/2.5/forecast?zip=${city.zip},us&appid=0e4ff9a19d12c0025cdb34c4349609a1`)
+                            .then(weatherResult => {
+                                city.weather = weatherResult.data;
+                                resolve(city);
+                            })
+                            .catch(err => {
+                                city.weather = null;
+                                reject(city)
+                            })
+                        });
+                    });
+
+                    Promise.all(promiseArray).then(weatherResults => {
+                        res.json({
+                            results: results,
+                            cities: weatherResults,
+                        })
+                    })
+                    
+                    
+                })
+                
+            })
+
+        } else {
+            res.json({
+                results: results,
+            })
+        }
+    
+        
     })
 })
 

@@ -1,4 +1,4 @@
-import {  ADD_LOCATION, REMOVE_LOCATION, CHANGE_CENTER, TOGGLE_ROUTE_ON_MAP, CLEAR_LOCATIONS } from '../types/location-type';
+import {  ADD_LOCATION, REMOVE_LOCATION, CHANGE_CENTER, TOGGLE_ROUTE_ON_MAP, CLEAR_LOCATIONS, GET_ROUTE, SAVE_CITY_INFO } from '../types/location-type';
 
 export const clickMap = (location) => {
     return dispatch => {
@@ -11,7 +11,6 @@ export const clickMap = (location) => {
              if (results.length > 0) {
                result = results[0];
              }
-             console.log(results)
              location.city = result.formatted_address//result.address_components[3].long_name;
              dispatch({
                 type: ADD_LOCATION,
@@ -68,6 +67,26 @@ export const clearDirections = () => {
         dispatch({
             type: CLEAR_LOCATIONS,
             payload: {},
+        })
+    }
+}
+
+export const getRoute = (request) => {
+    return dispatch => {
+
+
+        dispatch({
+            type: GET_ROUTE,
+            payload:{},
+        })
+    }
+}
+
+export const saveCityInfo = (infoArray) => {
+    return dispatch => {
+        dispatch({
+            type: SAVE_CITY_INFO,
+            payload:infoArray,
         })
     }
 }
