@@ -51,7 +51,6 @@ class Home extends Component {
       })
       .then(function (response) {
         //equivalent to result above is response.data.results.json
-        console.log(response)
         var clientFormattedResults = thisReference.convertNodeFormatToClientFormat(response);
         thisReference.props.dispatch(toggleRouteOnMap());
         thisReference.directionsRenderer.setMap(thisReference.map);
@@ -163,58 +162,60 @@ class Home extends Component {
 
       return (
           <div class="row" style={{padding: '10px'}}>
-          <div class="col-xs-12 col-md-8">
-            <div className="row">
-              <div className="col-4">
-                <b>From:&nbsp;</b>
-                { fromLocation != null ? `${fromLocation.city}` : ''}
-                <br/>
-                <span >
-                  { fromLocation != null ? `(${fromLocation.lat},${fromLocation.lng})` : ''}
-                </span>
-               
+            <div class="col-xs-12 col-md-8">
+              <div className="row" style={{height: '72px'}}>
+                <div className="col-xs-12 col-md-4">
+                  <b>From:&nbsp;</b>
+                  { fromLocation != null ? `${fromLocation.city}` : ''}
+                  <br/>
+                  <span >
+                    { fromLocation != null ? `(${fromLocation.lat},${fromLocation.lng})` : ''}
+                  </span>
+                
+                </div>
+                <div className="col-xs-12 col-md-4">
+                  <b>To:&nbsp;</b>
+                  { toLocation != null ? `${toLocation.city}` : ''}
+                  <br/>
+                  <span >
+                    { toLocation != null ? `(${toLocation.lat},${toLocation.lng})` : ''}
+                  </span>
+                </div>
+                <div className="col-xs-12 col-md-4">
+                  <div className="float-right">
+                    <button className="btn btn-primary " onClick={this.getDirections} >Search</button>
+                    &nbsp;
+                    <button className="btn btn-default " onClick={this.clearDirections}>Clear</button>
+                  </div>
+                
+                </div>
               </div>
-              <div className="col-4">
-                <b>To:&nbsp;</b>
-                { toLocation != null ? `${toLocation.city}` : ''}
-                <br/>
-                <span >
-                  { toLocation != null ? `(${toLocation.lat},${toLocation.lng})` : ''}
-                </span>
-              </div>
-              <div className="col-4">
-              <div className="float-right">
-                <button className="btn btn-primary " onClick={this.getDirections} >Search</button>
-                &nbsp;
-                <button className="btn btn-default " onClick={this.clearDirections}>Clear</button>
-              </div>
-               
-              </div>
-            </div>
-            <br/>
-            <div style={{height: '65vh'}}>
-              <Map google={google} zoom={10} 
-              onClick={this.mapClicked}
-              onReady={this.onMapLoad}
-              initialCenter={initialCenter}
-              center={center}
-            
-              >
-                {
-                  routeOnMap ? '' : locations.map(loc => <Marker name='' position={{lat: loc.lat, lng: loc.lng}} onClick={this.markerClicked}/>)
-                }
+              <br/>
+              <div className="row" style={{
+                position:'relative',
+                height: '77vh',
+              }}>
+                <Map google={google} zoom={10} 
+                onClick={this.mapClicked}
+                onReady={this.onMapLoad}
+                initialCenter={initialCenter}
+                center={center}
+              
+                >
+                  {
+                    routeOnMap ? '' : locations.map(loc => <Marker name='' position={{lat: loc.lat, lng: loc.lng}} onClick={this.markerClicked}/>)
+                  }
 
-                <InfoWindow onClose={this.onInfoWindowClose}>
-                    
-                </InfoWindow>
-              </Map>
+                  <InfoWindow onClose={this.onInfoWindowClose}>
+                      
+                  </InfoWindow>
+                </Map>
+              </div>
+            
             </div>
-          
-          </div>
-          <div class="col-xs-12 col-md-4" style={{height: '82vh', overflowY: 'auto'}}>
-            <b>Results:</b>
-            {cities.map(city => <CityInfo info={city} />)}
-          </div>
+            <div class="col-xs-12 col-md-4" style={{height: '90vh', overflowY: 'auto'}}>
+              {cities.map(city => <CityInfo info={city} />)}
+            </div>
            
           </div>
         );

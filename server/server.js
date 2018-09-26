@@ -9,7 +9,7 @@ import bodyParser from 'body-parser';
 import decodePolyline from 'decode-google-map-polyline';
 import axios from 'axios';
 
-const CITY_PRECISION = 5;
+const CITY_PRECISION = 10;
 
 // Routes
 import App from '../react/app'
@@ -68,6 +68,7 @@ app.post('/directions', (req,res) => {
                     selectedPoints.push(points[i]);
                 }
                 points = null;
+
                 let promises = selectedPoints.map(elem => {
                     return googleMapsClient.reverseGeocode({latlng: elem}).asPromise()
                 });
@@ -90,14 +91,14 @@ app.post('/directions', (req,res) => {
 
                     let promiseArray = cityInfo.map(city => {
                         return new Promise((resolve,reject) => {
-                            axios.get(`https://api.openweathermap.org/data/2.5/forecast?zip=${city.zip},us&appid=0e4ff9a19d12c0025cdb34c4349609a1`)
+                            axios.get(`https://api.openweathermap.org/data/2.5/forecast?zip=${city.zip},us&units=imperial&appid=0e4ff9a19d12c0025cdb34c4349609a1`)
                             .then(weatherResult => {
                                 city.weather = weatherResult.data;
                                 resolve(city);
                             })
                             .catch(err => {
                                 city.weather = null;
-                                reject(city)
+                                resolve(city)
                             })
                         });
                     });
@@ -108,15 +109,24 @@ app.post('/directions', (req,res) => {
                             cities: weatherResults,
                         })
                     })
+                    .catch(function(err){
+                        console.log(err);
+                        res.json({
+                            results: results,
+                            cities: [],
+                        })
+                    })
                     
                     
                 })
+                
                 
             })
 
         } else {
             res.json({
                 results: results,
+                cities: [],
             })
         }
     
