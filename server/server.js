@@ -58,8 +58,6 @@ app.post('/directions', (req,res) => {
     delete requestDetails.travelMode
     googleMapsClient.directions(requestDetails).asPromise()
     .then(results => {
-
-
         if(results.json.routes){
             results.json.routes.forEach(element => {
                 var points = decodePolyline(element.overview_polyline.points);
@@ -131,6 +129,18 @@ app.post('/directions', (req,res) => {
         }
     
         
+    })
+})
+
+
+app.post('/locationDetails', (req,res) => {
+    var location = req.body.location;
+    googleMapsClient.reverseGeocode({latlng: location}).asPromise()
+    .then((geocodeResult) => {
+        return res.json({
+            locationDetails: geocodeResult.json.results[0],
+            status: geocodeResult.json.status,
+        });
     })
 })
 

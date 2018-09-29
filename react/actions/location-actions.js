@@ -1,17 +1,19 @@
 import {  ADD_LOCATION, REMOVE_LOCATION, CHANGE_CENTER, TOGGLE_ROUTE_ON_MAP, CLEAR_LOCATIONS, GET_ROUTE, SAVE_CITY_INFO } from '../types/location-type';
+import axios from 'axios';
 
 export const clickMap = (location) => {
     return dispatch => {
         location.city = '';
         var googleLocation = new google.maps.LatLng(location.lat, location.lng);
         var geocoder = new google.maps.Geocoder();
-        geocoder.geocode({'latLng': googleLocation}, function(results, status) {
-          if (status == google.maps.GeocoderStatus.OK) {
-             var result;
-             if (results.length > 0) {
-               result = results[0];
-             }
-             location.city = result.formatted_address//result.address_components[3].long_name;
+        axios.post('http://localhost:3000/locationDetails', {
+            location: googleLocation,
+        })
+        .then(function (results) {
+          if (results.data.status == google.maps.GeocoderStatus.OK) {
+
+             var result = results.data.locationDetails;
+             location.city = result.formatted_address;
              dispatch({
                 type: ADD_LOCATION,
                 payload:{

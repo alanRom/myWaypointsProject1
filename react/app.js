@@ -14,7 +14,7 @@ export default class MainApp extends Component {
       
       return (
         <div>
-          <nav className="navbar navbar-expand-lg navbar-dark bg-dark" style={{height:'45px'}}>
+          <nav className="navbar navbar-expand-lg navbar-dark bg-dark" >
           <Link to="/" className="brand-link" ><h3>WayBetter &#945;</h3></Link>
           <button className="navbar-toggler" type="button" data-toggle="collapse" 
             data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,8 +26,6 @@ export default class MainApp extends Component {
               
               <li className="nav-item"><Link to="/" className="nav-link">Home</Link></li>
               <li className="nav-item"><Link to="/about" className="nav-link">About</Link></li>
-              <li className="nav-item"><Link to="/work" className="nav-link">Work</Link></li>
-              <li className="nav-item"><Link to="/contact" className="nav-link">Contact</Link></li>
               
             </ul>
           </div>

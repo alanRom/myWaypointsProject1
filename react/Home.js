@@ -34,8 +34,16 @@ class Home extends Component {
     getDirections(){
       
       let origin =  this.props.locationReducer.origin;
+      if(origin == null){
+        alert('Please select a starting location!')
+        return;
+      }
       origin = new google.maps.LatLng(origin.lat, origin.lng)
       let destination = this.props.locationReducer.to;
+      if(destination == null){
+        alert('Please select a destination!')
+        return;
+      }
       destination = new google.maps.LatLng(destination.lat, destination.lng)
 
       let routeRequest = {
@@ -163,13 +171,13 @@ class Home extends Component {
       return (
           <div class="row" style={{padding: '10px'}}>
             <div class="col-xs-12 col-md-8">
-              <div className="row" style={{height: '72px'}}>
+              <div className="row" >
                 <div className="col-xs-12 col-md-4">
                   <b>From:&nbsp;</b>
                   { fromLocation != null ? `${fromLocation.city}` : ''}
                   <br/>
                   <span >
-                    { fromLocation != null ? `(${fromLocation.lat},${fromLocation.lng})` : ''}
+                    { fromLocation != null ? `(${fromLocation.lat}, ${fromLocation.lng})` : ''}
                   </span>
                 
                 </div>
@@ -178,7 +186,7 @@ class Home extends Component {
                   { toLocation != null ? `${toLocation.city}` : ''}
                   <br/>
                   <span >
-                    { toLocation != null ? `(${toLocation.lat},${toLocation.lng})` : ''}
+                    { toLocation != null ? `(${toLocation.lat}, ${toLocation.lng})` : ''}
                   </span>
                 </div>
                 <div className="col-xs-12 col-md-4">
