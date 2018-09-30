@@ -118,8 +118,8 @@ class Home extends Component {
     mapClicked(mapProps, map, clickEvent) {
       if(this.props.locationReducer.to != null && this.props.locationReducer.origin != null   ) return;
       this.props.dispatch(clickMap({
-        lat: clickEvent.latLng.lat(),
-        lng: clickEvent.latLng.lng(),
+        lat: parseFloat(parseFloat(clickEvent.latLng.lat()).toFixed(4)),
+        lng: parseFloat(parseFloat(clickEvent.latLng.lng()).toFixed(4)),
        }));
     }
 
@@ -136,8 +136,8 @@ class Home extends Component {
 
     markerClicked(props, marker, e){
       const markerLocation = {
-        lat: marker.position.lat(),
-        lng: marker.position.lng(),
+        lat: parseFloat(parseFloat(marker.position.lat()).toFixed(4)),
+        lng: parseFloat(parseFloat(marker.position.lng()).toFixed(4)),
       };
       this.props.dispatch(clickMarker(markerLocation))
     }

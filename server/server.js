@@ -22,7 +22,18 @@ var googleMapsClient = require('@google/maps').createClient({
 
 // Express
 const app = express()
+var mongodb;
 
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
+
+MongoClient.connect(url, function(err, db) {
+
+    mongodb = db.db("waybetter");
+
+
+
+});
 
 app.engine('html', hogan)
 app.set('views', __dirname + '/views')
@@ -58,6 +69,13 @@ app.post('/directions', (req,res) => {
     delete requestDetails.travelMode
     googleMapsClient.directions(requestDetails).asPromise()
     .then(results => {
+
+
+        // mongodb.collection('map_response').insertOne({
+        //     request: requestDetails,
+        //     response: results,
+        // });
+
         if(results.json.routes){
             results.json.routes.forEach(element => {
                 var points = decodePolyline(element.overview_polyline.points);
@@ -133,15 +151,40 @@ app.post('/directions', (req,res) => {
 })
 
 
-app.post('/locationDetails', (req,res) => {
+app.post('/locationDetails', async (req,res) => {
     var location = req.body.location;
-    googleMapsClient.reverseGeocode({latlng: location}).asPromise()
-    .then((geocodeResult) => {
-        return res.json({
-            locationDetails: geocodeResult.json.results[0],
-            status: geocodeResult.json.status,
-        });
+    
+    
+    mongodb.collection('location_response').findOne({
+        "request.lat": location.lat,
+        "request.lng": location.lng,
+
     })
+    .then(function(dbLookup){
+
+        if(dbLookup != null){
+            return res.json(dbLookup.response);
+        }
+
+         googleMapsClient.reverseGeocode({latlng: location}).asPromise()
+        .then((geocodeResult) => {
+            mongodb.collection('location_response').insertOne({
+                request: location,
+                response: {
+                    locationDetails: geocodeResult.json.results[0],
+                    status: geocodeResult.json.status,
+                },
+            });
+            
+            return res.json({
+                locationDetails: geocodeResult.json.results[0],
+                status: geocodeResult.json.status,
+            });
+        })
+    });
+    
+        
+   
 })
 
 app.listen(app.get('port'))
