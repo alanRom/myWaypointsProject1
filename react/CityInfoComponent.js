@@ -20,7 +20,6 @@ export default class CityInfoComponent extends Component{
                     weatherGroups[curDate].push(hourInterval);
                 }
             });
-            console.log(weatherGroups)
             weatherDisplays = Object.keys(weatherGroups).map(key => {
                 let weatherDay = weatherGroups[key];
                 let splitDatePieces = weatherDay[0].dt_txt.split(' ')[0].split('-');

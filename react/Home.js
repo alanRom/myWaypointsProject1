@@ -213,7 +213,9 @@ class Home extends Component {
                   {
                     routeOnMap ? '' : locations.map(loc => <Marker name='' position={{lat: loc.lat, lng: loc.lng}} onClick={this.markerClicked}/>)
                   }
-
+                  {
+                    !routeOnMap ? '' : cities.map(city => <Marker title={city.city} name={city.city} position={{lat: city.lat, lng: city.lng}} />)
+                  }
                   <InfoWindow onClose={this.onInfoWindowClose}>
                       
                   </InfoWindow>

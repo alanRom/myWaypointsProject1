@@ -13,6 +13,7 @@ const CITY_PRECISION = 10;
 
 // Routes
 import App from '../react/app'
+import { parse } from 'querystring';
 
 //Google Maps
 var googleMapsClient = require('@google/maps').createClient({
@@ -63,91 +64,139 @@ app.get('*',(req, res) => {
 })
 
 
-app.post('/directions', (req,res) => {
+app.post('/directions', async (req,res) => {
     var requestDetails = req.body.request;
     requestDetails.mode = requestDetails.travelMode.toLowerCase();
     delete requestDetails.travelMode
-    googleMapsClient.directions(requestDetails).asPromise()
-    .then(results => {
 
+    let results = await mongodb.collection('map_response').findOne({
+        "origin.lat": requestDetails.origin.lat,
+        "origin.lng": requestDetails.origin.lng,
+        "destination.lat": requestDetails.destination.lat,
+        "destination.lng": requestDetails.destination.lng,
 
-        // mongodb.collection('map_response').insertOne({
-        //     request: requestDetails,
-        //     response: results,
-        // });
+    })
 
-        if(results.json.routes){
-            results.json.routes.forEach(element => {
-                var points = decodePolyline(element.overview_polyline.points);
-                var selectedPoints = [];
-                for(let i = 0; i < points.length; i+=CITY_PRECISION){
-                    selectedPoints.push(points[i]);
-                }
-                points = null;
-
-                let promises = selectedPoints.map(elem => {
-                    return googleMapsClient.reverseGeocode({latlng: elem}).asPromise()
-                });
-
-                Promise.all(promises).then(resultsArray => {
-                    var uniqueCities = [];
-                    var cityInfo = [];
-                    resultsArray.forEach(place => {
-                        var address = place.json.results[0].formatted_address.split(/,/g);
-                        var city = address[1];
-
-                        if(uniqueCities.indexOf(city) == -1){
-                            var stateZipSplit = address[2].split(' ')
-                            var addressToLookup = {city: city, state: stateZipSplit[1], zip: stateZipSplit[2]}
-                            uniqueCities.push(city);
-                            cityInfo.push(addressToLookup);
-                        }
-                        
-                    })
-
-                    let promiseArray = cityInfo.map(city => {
-                        return new Promise((resolve,reject) => {
-                            axios.get(`https://api.openweathermap.org/data/2.5/forecast?zip=${city.zip},us&units=imperial&appid=0e4ff9a19d12c0025cdb34c4349609a1`)
-                            .then(weatherResult => {
-                                city.weather = weatherResult.data;
-                                resolve(city);
+    if(results == null){
+        results = await googleMapsClient.directions(requestDetails).asPromise();
+        mongodb.collection('map_response').insertOne({
+            request: requestDetails,
+            response: results,
+        });
+    } else {
+        results = results.response
+    }
+    
+    if(results.json.routes){
+        results.json.routes.forEach(element => {
+            var points = decodePolyline(element.overview_polyline.points);
+            var selectedPoints = [];
+            for(let i = 0; i < points.length; i+=CITY_PRECISION){
+                selectedPoints.push(points[i]);
+            }
+            points = null;
+            let promises = selectedPoints.map(elem => {
+                let fourDigitLat = parseFloat(parseFloat(elem.lat).toFixed(4));
+                let fourDigitLng = parseFloat(parseFloat(elem.lng).toFixed(4));
+                return mongodb.collection('location_response').findOne({
+                    "request.lat": fourDigitLat,
+                    "request.lng": fourDigitLng,
+                }) .then((dbLocationResult)=> {
+                    if(dbLocationResult == null){
+                        return googleMapsClient.reverseGeocode({latlng:{lat: fourDigitLat, lng: fourDigitLng}}).asPromise()
+                        .then((googleLocationResult) => {
+                            mongodb.collection('location_response').insertOne({
+                                request: {
+                                    lat: fourDigitLat,
+                                    lng: fourDigitLng,
+                                },
+                                response: googleLocationResult,
                             })
-                            .catch(err => {
-                                city.weather = null;
-                                resolve(city)
-                            })
-                        });
-                    });
 
-                    Promise.all(promiseArray).then(weatherResults => {
-                        res.json({
-                            results: results,
-                            cities: weatherResults,
+                            return googleLocationResult
                         })
-                    })
-                    .catch(function(err){
-                        console.log(err);
-                        res.json({
-                            results: results,
-                            cities: [],
-                        })
-                    })
-                    
+                    } else {
+                        return dbLocationResult.response
+                    }
+                })
+            });
+
+            Promise.all(promises).then(resultsArray => {
+                var uniqueCities = [];
+                var cityInfo = [];
+                resultsArray.forEach(place => {
+                    var address = place.json.results[0].formatted_address.split(/,/g);
+                    var city = address[1];
+                    var latlng = place.query.latlng.split(',').map(parseFloat);
+
+                    if(uniqueCities.indexOf(city) == -1){
+                        var stateZipSplit = address[2].split(' ')
+                        var addressToLookup = {city: city, state: stateZipSplit[1], zip: stateZipSplit[2], lat: latlng[0], lng:latlng[1] }
+                        uniqueCities.push(city);
+                        cityInfo.push(addressToLookup);
+                    }
                     
                 })
-                
-                
-            })
 
-        } else {
-            res.json({
-                results: results,
-                cities: [],
+                let promiseArray = cityInfo.map(city => {
+                    return new Promise((resolve,reject) => {
+                        let lastHour  = new Date().getHours > 0 ? new Date().getHours() - 1 : 0;
+                        mongodb.collection('weather_response').findOne({
+                            zip: {
+                                $eq: city.zip,
+                            },
+                            date: {
+                                $gt: new Date(new Date().setHours(lastHour, 0 ,0 ,0)),
+                            },
+                            
+                        }).then(dbWeatherResult => {
+                            if(dbWeatherResult != null){
+                                city.weather = dbWeatherResult.response;
+                                resolve(city);
+                            } else {
+                                 axios.get(`https://api.openweathermap.org/data/2.5/forecast?zip=${city.zip},us&units=imperial&appid=0e4ff9a19d12c0025cdb34c4349609a1`)
+                                .then(weatherResult => {
+                                    mongodb.collection('weather_response').insertOne({
+                                        zip: city.zip,
+                                        date: new Date(),
+                                        response: weatherResult.data,
+                                    })
+                                    city.weather = weatherResult.data;
+                                    resolve(city);
+                                })
+                                .catch(err => {
+                                    city.weather = null;
+                                    resolve(city)
+                                })
+                            }
+                        })
+
+                        
+                    });
+                });
+
+                Promise.all(promiseArray).then(weatherResults => {
+                    res.json({
+                        results: results,
+                        cities: weatherResults.filter(city => city.weather != null),
+                    })
+                })
+                .catch(function(err){
+                    console.log(err);
+                    res.json({
+                        results: results,
+                        cities: [],
+                    })
+                })
             })
-        }
-    
-        
-    })
+        })
+
+    } else {
+        res.json({
+            results: results,
+            cities: [],
+        })
+    }
 })
 
 
