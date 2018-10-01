@@ -25,10 +25,10 @@ switch(action.type) {
         return {...state, center: action.payload.location}
     case REMOVE_LOCATION:
         let newState2 = {...state};
-        if(state.to.lat == action.payload.location.lat && state.to.lng == action.payload.location.lng){
-            newState2.to == null;
-        }  else if(state.origin.lat == action.payload.location.lat && state.origin.lng == action.payload.location.lng){
-            newState2.origin == null;
+        if(state.to !== null && state.to.lat == action.payload.location.lat && state.to.lng == action.payload.location.lng){
+            newState2.to = null;
+        }  else if(state.origin != null && state.origin.lat == action.payload.location.lat && state.origin.lng == action.payload.location.lng){
+            newState2.origin = null;
         }
         return newState2;
     case TOGGLE_ROUTE_ON_MAP:

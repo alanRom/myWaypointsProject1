@@ -77,10 +77,11 @@ app.post('/directions', (req,res) => {
                     resultsArray.forEach(place => {
                         var address = place.json.results[0].formatted_address.split(/,/g);
                         var city = address[1];
+                        var latlng = place.query.latlng.split(',').map(parseFloat);
 
                         if(uniqueCities.indexOf(city) == -1){
                             var stateZipSplit = address[2].split(' ')
-                            var addressToLookup = {city: city, state: stateZipSplit[1], zip: stateZipSplit[2]}
+                            var addressToLookup = {city: city, state: stateZipSplit[1], zip: stateZipSplit[2], lat: latlng[0], lng:latlng[1] }
                             uniqueCities.push(city);
                             cityInfo.push(addressToLookup);
                         }
