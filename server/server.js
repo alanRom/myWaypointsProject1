@@ -23,10 +23,11 @@ var googleMapsClient = require('@google/maps').createClient({
 // Express
 const app = express()
 
+var dirName = ( __dirname == null || __dirname == '/') ? '.' : __dirname; 
 
 app.engine('html', hogan)
-app.set('views', 'views/')
-app.use('/', express.static('public/'))
+app.set('views', dirName + '/views/')
+app.use('/', express.static( dirName + '/public/'))
 app.set('port', (process.env.PORT || 3000))
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
