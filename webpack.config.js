@@ -29,7 +29,7 @@ var front_config = {
 
 var back_config = {
   target: "node",
-  entry: ['./server/server.js'],
+  entry: ['babel-polyfill','./server/server.js'],
   output: {
     path: __dirname + '/build/',
     filename: 'server.js',
@@ -38,7 +38,7 @@ var back_config = {
     rules: [
         {
           test: /\.js*$/,
-          exclude: [/node_modules/, /.+\.config.js/],
+          exclude: [ /.+\.config.js/],
           use: 'babel-loader',
         },
       ],

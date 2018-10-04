@@ -35,7 +35,7 @@ MongoClient.connect(url,{ useNewUrlParser: true }, function(err, db) {
 
 
 });
-var dirName = __dirname == '/' ? '.' : __dirname; 
+var dirName = ( __dirname == null || __dirname == '/') ? '.' : __dirname; 
 app.engine('html', hogan)
 app.set('views',dirName + '/views')
 app.use('/', express.static(dirName +'/public/'))
