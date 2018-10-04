@@ -28,17 +28,17 @@ var mongodb;
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
 
-MongoClient.connect(url, function(err, db) {
+MongoClient.connect(url,{ useNewUrlParser: true }, function(err, db) {
 
     mongodb = db.db("waybetter");
 
 
 
 });
-
+var dirName = __dirname == '/' ? '.' : __dirname; 
 app.engine('html', hogan)
-app.set('views', __dirname + '/views')
-app.use('/', express.static(__dirname + '/public/'))
+app.set('views',dirName + '/views')
+app.use('/', express.static(dirName +'/public/'))
 app.set('port', (process.env.PORT || 3000))
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
