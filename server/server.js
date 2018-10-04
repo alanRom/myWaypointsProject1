@@ -25,8 +25,8 @@ const app = express()
 
 
 app.engine('html', hogan)
-app.set('views', __dirname + '/views')
-app.use('/', express.static(__dirname + '/public/'))
+app.set('views', 'views/')
+app.use('/', express.static('public/'))
 app.set('port', (process.env.PORT || 3000))
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
